@@ -328,29 +328,86 @@ canvas{max-height:200px;}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
 /* ================================================================
-   DATABASE IN-MEMORY
+   DONNÉES PAR DÉFAUT (utilisées uniquement au 1er lancement)
 ================================================================ */
-const DB = {
-  users: [
-    {id:'USR-001',login:'SADMIN', pw:'0000',    role:'sadmin',nm:'Super Admin',    prenom:'Super',  nom:'Admin',   mat:'MAT-001',email:'sadmin@cie.ci',   svc:'Direction des Services Informatiques',active:true, accesRapport:true, exportRapport:true,  createdAt:'2024-01-01',createdBy:'SYSTEM'},
-    {id:'USR-002',login:'ADMIN',  pw:'1234',    role:'admin', nm:'KOUASSI Awa',   prenom:'Awa',    nom:'KOUASSI', mat:'MAT-002',email:'a.kouassi@cie.ci', svc:'Direction des Services Informatiques',active:true, accesRapport:true, exportRapport:true,  createdAt:'2024-01-05',createdBy:'SADMIN'},
-    {id:'USR-003',login:'USER01', pw:'User@2024',role:'user',  nm:'BAMBA Koffi',  prenom:'Koffi',  nom:'BAMBA',   mat:'MAT-003',email:'k.bamba@cie.ci',   svc:'Direction des opérations',            active:true, accesRapport:false,exportRapport:false, createdAt:'2024-02-10',createdBy:'ADMIN'},
-    {id:'USR-004',login:'READER', pw:'9999',    role:'reader',nm:'DIALLO Mamou',  prenom:'Mamou',  nom:'DIALLO',  mat:'MAT-004',email:'m.diallo@cie.ci',  svc:'Direction Administrative et Financière',active:false,accesRapport:true, exportRapport:false, createdAt:'2024-02-15',createdBy:'ADMIN'},
-    {id:'USR-005',login:'USER02', pw:'User@2024',role:'user',  nm:'YAO Marie',    prenom:'Marie',  nom:'YAO',     mat:'MAT-005',email:'m.yao@cie.ci',     svc:'Direction des opérations',            active:true, accesRapport:false,exportRapport:false, createdAt:'2024-03-01',createdBy:'ADMIN'},
-    {id:'USR-006',login:'USER03', pw:'User@2024',role:'user',  nm:'TRAORE Issa',  prenom:'Issa',   nom:'TRAORE',  mat:'MAT-006',email:'i.traore@cie.ci',  svc:'Direction des Services Informatiques',active:true, accesRapport:false,exportRapport:false, createdAt:'2024-03-10',createdBy:'ADMIN'},
-  ],
-  tickets: [
-    {id:'TK-001',type:'interne',catInterne:'Inaccessibilité à une plateforme',   catClient:null,clientNom:null,produit:null,natureClient:null,desc:'Les agents ne peuvent plus se connecter à l\'extranet clients depuis ce matin 08h.',prio:'P1',statut:'recu',   svcAssigne:'DSI',           emetteurId:'USR-003',emetteurNm:'BAMBA Koffi', dt:'2026-03-03T08:14',dtDetect:'2026-03-03T08:00',slaMax:30,  wait:158,pjNom:null,  timeline:[{type:'create',txt:'🎫 Ticket créé et envoyé',by:'BAMBA Koffi',at:'2026-03-03T08:14'},{type:'alert',txt:'🔔 Alerte non ouvert (10mn)',by:'Système',at:'2026-03-03T08:24'},{type:'esc',txt:'🚨 Escalade déclenchée (+2h) — Email + WhatsApp envoyés',by:'Système',at:'2026-03-03T10:14'}],comments:[]},
-    {id:'TK-002',type:'client',  catInterne:null,catClient:'Retard de réception',clientNom:'SOTRA',produit:'Clippings',natureClient:'Retard de réception',desc:'Le client SOTRA signale un retard de réception de ses clippings quotidiens depuis 2 jours.',prio:'P2',statut:'encours',svcAssigne:'Relation Clientèle',emetteurId:'USR-002',emetteurNm:'KOUASSI Awa',dt:'2026-03-02T14:30',dtDetect:'2026-03-02T14:00',slaMax:120,wait:58,pjNom:null,  timeline:[{type:'create',txt:'🎫 Ticket créé',by:'KOUASSI Awa',at:'2026-03-02T14:30'},{type:'action',txt:'📌 Pris en charge — Assigné à Relation Clientèle',by:'KOUASSI Awa',at:'2026-03-02T15:00'}],comments:[{by:'KOUASSI Awa',role:'admin',txt:'En contact avec le client, investigation en cours.',at:'2026-03-02T15:30'}]},
-    {id:'TK-003',type:'interne',catInterne:'Plateforme — Bugs / Lenteurs',        catClient:null,clientNom:null,produit:null,natureClient:null,desc:'La plateforme clippings est extrêmement lente depuis 09h. Temps de chargement > 30s.',prio:'P2',statut:'ouvert', svcAssigne:'DSI',           emetteurId:'USR-005',emetteurNm:'YAO Marie',   dt:'2026-03-03T09:02',dtDetect:'2026-03-03T09:00',slaMax:120,wait:110,pjNom:null, timeline:[{type:'create',txt:'🎫 Ticket créé',by:'YAO Marie',at:'2026-03-03T09:02'},{type:'alert',txt:'🔔 Alerte non ouvert (10mn)',by:'Système',at:'2026-03-03T09:12'}],comments:[]},
-    {id:'TK-004',type:'interne',catInterne:'Dysfonctionnement d\'une plateforme', catClient:null,clientNom:null,produit:null,natureClient:null,desc:'Les panoramas affichent des doublons d\'articles depuis la mise à jour de lundi.',prio:'P2',statut:'pris',    svcAssigne:'Boldcode',       emetteurId:'USR-006',emetteurNm:'TRAORE Issa', dt:'2026-03-02T10:15',dtDetect:'2026-03-02T10:00',slaMax:120,wait:72,pjNom:null,  timeline:[{type:'create',txt:'🎫 Ticket créé',by:'TRAORE Issa',at:'2026-03-02T10:15'},{type:'action',txt:'📌 Pris en charge — Assigné à Boldcode',by:'KOUASSI Awa',at:'2026-03-02T11:00'}],comments:[]},
-    {id:'TK-005',type:'interne',catInterne:'Accès comptes — login ou mots de passe oubliés',catClient:null,clientNom:null,produit:null,natureClient:null,desc:'Je ne peux plus me connecter à mon compte depuis ce matin. Message : compte verrouillé.',prio:'P3',statut:'resolu',svcAssigne:'DSI',emetteurId:'USR-005',emetteurNm:'YAO Marie',dt:'2026-03-01T11:45',dtDetect:'2026-03-01T11:30',slaMax:1440,wait:0,pjNom:null,timeline:[{type:'create',txt:'🎫 Ticket créé',by:'YAO Marie',at:'2026-03-01T11:45'},{type:'action',txt:'🔧 Compte déverrouillé',by:'KOUASSI Awa',at:'2026-03-01T12:30'},{type:'ok',txt:'✅ Ticket résolu et fermé',by:'KOUASSI Awa',at:'2026-03-01T12:35'}],comments:[{by:'KOUASSI Awa',role:'admin',txt:'Compte déverrouillé. Vérification de la politique de sécurité effectuée.',at:'2026-03-01T12:35'}]},
-    {id:'TK-006',type:'interne',catInterne:'Réseau — Local',                      catClient:null,clientNom:null,produit:null,natureClient:null,desc:'Coupure réseau dans tout le bâtiment du Plateau depuis 09h00.',prio:'P1',statut:'ferme',  svcAssigne:'DSI',           emetteurId:'USR-003',emetteurNm:'BAMBA Koffi', dt:'2026-02-28T09:00',dtDetect:'2026-02-28T09:00',slaMax:30,  wait:0,pjNom:null,  timeline:[{type:'create',txt:'🎫 Ticket créé',by:'BAMBA Koffi',at:'2026-02-28T09:00'},{type:'esc',txt:'🚨 Escalade déclenchée',by:'Système',at:'2026-02-28T11:00'},{type:'ok',txt:'✅ Réseau rétabli — Ticket fermé',by:'KOUASSI Awa',at:'2026-02-28T14:30'}],comments:[]},
-  ],
-  logs: [],
-  nextUserId: 7,
-  nextTicketId: 7,
+const DEFAULT_USERS = [
+  {id:'USR-001',login:'SADMIN', pw:'0000',    role:'sadmin',nm:'Super Admin',    prenom:'Super',  nom:'Admin',   mat:'MAT-001',email:'sadmin@cie.ci',   svc:'Direction des Services Informatiques',active:true, accesRapport:true, exportRapport:true,  createdAt:'2024-01-01',createdBy:'SYSTEM'},
+  {id:'USR-002',login:'ADMIN',  pw:'1234',    role:'admin', nm:'KOUASSI Awa',   prenom:'Awa',    nom:'KOUASSI', mat:'MAT-002',email:'a.kouassi@cie.ci', svc:'Direction des Services Informatiques',active:true, accesRapport:true, exportRapport:true,  createdAt:'2024-01-05',createdBy:'SADMIN'},
+  {id:'USR-003',login:'USER01', pw:'User@2024',role:'user',  nm:'BAMBA Koffi',  prenom:'Koffi',  nom:'BAMBA',   mat:'MAT-003',email:'k.bamba@cie.ci',   svc:'Direction des opérations',            active:true, accesRapport:false,exportRapport:false, createdAt:'2024-02-10',createdBy:'ADMIN'},
+  {id:'USR-004',login:'READER', pw:'9999',    role:'reader',nm:'DIALLO Mamou',  prenom:'Mamou',  nom:'DIALLO',  mat:'MAT-004',email:'m.diallo@cie.ci',  svc:'Direction Administrative et Financière',active:false,accesRapport:true, exportRapport:false, createdAt:'2024-02-15',createdBy:'ADMIN'},
+  {id:'USR-005',login:'USER02', pw:'User@2024',role:'user',  nm:'YAO Marie',    prenom:'Marie',  nom:'YAO',     mat:'MAT-005',email:'m.yao@cie.ci',     svc:'Direction des opérations',            active:true, accesRapport:false,exportRapport:false, createdAt:'2024-03-01',createdBy:'ADMIN'},
+  {id:'USR-006',login:'USER03', pw:'User@2024',role:'user',  nm:'TRAORE Issa',  prenom:'Issa',   nom:'TRAORE',  mat:'MAT-006',email:'i.traore@cie.ci',  svc:'Direction des Services Informatiques',active:true, accesRapport:false,exportRapport:false, createdAt:'2024-03-10',createdBy:'ADMIN'},
+];
+const DEFAULT_TICKETS = [
+  {id:'TK-001',type:'interne',catInterne:'Inaccessibilité à une plateforme',   catClient:null,clientNom:null,produit:null,natureClient:null,desc:'Les agents ne peuvent plus se connecter à l\'extranet clients depuis ce matin 08h.',prio:'P1',statut:'recu',   svcAssigne:'DSI',           emetteurId:'USR-003',emetteurNm:'BAMBA Koffi', dt:'2026-03-03T08:14',dtDetect:'2026-03-03T08:00',slaMax:30,  wait:158,pjNom:null,  timeline:[{type:'create',txt:'🎫 Ticket créé et envoyé',by:'BAMBA Koffi',at:'2026-03-03T08:14'},{type:'alert',txt:'🔔 Alerte non ouvert (10mn)',by:'Système',at:'2026-03-03T08:24'},{type:'esc',txt:'🚨 Escalade déclenchée (+2h) — Email + WhatsApp envoyés',by:'Système',at:'2026-03-03T10:14'}],comments:[]},
+  {id:'TK-002',type:'client',  catInterne:null,catClient:'Retard de réception',clientNom:'SOTRA',produit:'Clippings',natureClient:'Retard de réception',desc:'Le client SOTRA signale un retard de réception de ses clippings quotidiens depuis 2 jours.',prio:'P2',statut:'encours',svcAssigne:'Relation Clientèle',emetteurId:'USR-002',emetteurNm:'KOUASSI Awa',dt:'2026-03-02T14:30',dtDetect:'2026-03-02T14:00',slaMax:120,wait:58,pjNom:null,  timeline:[{type:'create',txt:'🎫 Ticket créé',by:'KOUASSI Awa',at:'2026-03-02T14:30'},{type:'action',txt:'📌 Pris en charge — Assigné à Relation Clientèle',by:'KOUASSI Awa',at:'2026-03-02T15:00'}],comments:[{by:'KOUASSI Awa',role:'admin',txt:'En contact avec le client, investigation en cours.',at:'2026-03-02T15:30'}]},
+  {id:'TK-003',type:'interne',catInterne:'Plateforme — Bugs / Lenteurs',        catClient:null,clientNom:null,produit:null,natureClient:null,desc:'La plateforme clippings est extrêmement lente depuis 09h. Temps de chargement > 30s.',prio:'P2',statut:'ouvert', svcAssigne:'DSI',           emetteurId:'USR-005',emetteurNm:'YAO Marie',   dt:'2026-03-03T09:02',dtDetect:'2026-03-03T09:00',slaMax:120,wait:110,pjNom:null, timeline:[{type:'create',txt:'🎫 Ticket créé',by:'YAO Marie',at:'2026-03-03T09:02'},{type:'alert',txt:'🔔 Alerte non ouvert (10mn)',by:'Système',at:'2026-03-03T09:12'}],comments:[]},
+  {id:'TK-004',type:'interne',catInterne:'Dysfonctionnement d\'une plateforme', catClient:null,clientNom:null,produit:null,natureClient:null,desc:'Les panoramas affichent des doublons d\'articles depuis la mise à jour de lundi.',prio:'P2',statut:'pris',    svcAssigne:'Boldcode',       emetteurId:'USR-006',emetteurNm:'TRAORE Issa', dt:'2026-03-02T10:15',dtDetect:'2026-03-02T10:00',slaMax:120,wait:72,pjNom:null,  timeline:[{type:'create',txt:'🎫 Ticket créé',by:'TRAORE Issa',at:'2026-03-02T10:15'},{type:'action',txt:'📌 Pris en charge — Assigné à Boldcode',by:'KOUASSI Awa',at:'2026-03-02T11:00'}],comments:[]},
+  {id:'TK-005',type:'interne',catInterne:'Accès comptes — login ou mots de passe oubliés',catClient:null,clientNom:null,produit:null,natureClient:null,desc:'Je ne peux plus me connecter à mon compte depuis ce matin. Message : compte verrouillé.',prio:'P3',statut:'resolu',svcAssigne:'DSI',emetteurId:'USR-005',emetteurNm:'YAO Marie',dt:'2026-03-01T11:45',dtDetect:'2026-03-01T11:30',slaMax:1440,wait:0,pjNom:null,timeline:[{type:'create',txt:'🎫 Ticket créé',by:'YAO Marie',at:'2026-03-01T11:45'},{type:'action',txt:'🔧 Compte déverrouillé',by:'KOUASSI Awa',at:'2026-03-01T12:30'},{type:'ok',txt:'✅ Ticket résolu et fermé',by:'KOUASSI Awa',at:'2026-03-01T12:35'}],comments:[{by:'KOUASSI Awa',role:'admin',txt:'Compte déverrouillé. Vérification de la politique de sécurité effectuée.',at:'2026-03-01T12:35'}]},
+  {id:'TK-006',type:'interne',catInterne:'Réseau — Local',                      catClient:null,clientNom:null,produit:null,natureClient:null,desc:'Coupure réseau dans tout le bâtiment du Plateau depuis 09h00.',prio:'P1',statut:'ferme',  svcAssigne:'DSI',           emetteurId:'USR-003',emetteurNm:'BAMBA Koffi', dt:'2026-02-28T09:00',dtDetect:'2026-02-28T09:00',slaMax:30,  wait:0,pjNom:null,  timeline:[{type:'create',txt:'🎫 Ticket créé',by:'BAMBA Koffi',at:'2026-02-28T09:00'},{type:'esc',txt:'🚨 Escalade déclenchée',by:'Système',at:'2026-02-28T11:00'},{type:'ok',txt:'✅ Réseau rétabli — Ticket fermé',by:'KOUASSI Awa',at:'2026-02-28T14:30'}],comments:[]},
+];
+
+/* ================================================================
+   PERSISTANCE localStorage — clés de stockage
+================================================================ */
+const LS = {
+  USERS:   'vedem_users',
+  TICKETS: 'vedem_tickets',
+  LOGS:    'vedem_logs',
+  META:    'vedem_meta',   // nextUserId, nextTicketId
 };
+
+/* Charger ou initialiser la base depuis localStorage */
+function loadDB() {
+  try {
+    const users   = JSON.parse(localStorage.getItem(LS.USERS));
+    const tickets = JSON.parse(localStorage.getItem(LS.TICKETS));
+    const logs    = JSON.parse(localStorage.getItem(LS.LOGS));
+    const meta    = JSON.parse(localStorage.getItem(LS.META));
+    return {
+      users:         users   && users.length   ? users   : JSON.parse(JSON.stringify(DEFAULT_USERS)),
+      tickets:       tickets && tickets.length ? tickets : JSON.parse(JSON.stringify(DEFAULT_TICKETS)),
+      logs:          logs    ? logs            : [],
+      nextUserId:    meta    ? meta.nextUserId    : 7,
+      nextTicketId:  meta    ? meta.nextTicketId  : 7,
+    };
+  } catch(e) {
+    return {
+      users:        JSON.parse(JSON.stringify(DEFAULT_USERS)),
+      tickets:      JSON.parse(JSON.stringify(DEFAULT_TICKETS)),
+      logs:         [],
+      nextUserId:   7,
+      nextTicketId: 7,
+    };
+  }
+}
+
+/* Sauvegarder TOUT dans localStorage après chaque modification */
+function saveDB() {
+  try {
+    localStorage.setItem(LS.USERS,   JSON.stringify(DB.users));
+    localStorage.setItem(LS.TICKETS, JSON.stringify(DB.tickets));
+    localStorage.setItem(LS.LOGS,    JSON.stringify(DB.logs.slice(0,200)));
+    localStorage.setItem(LS.META,    JSON.stringify({nextUserId:DB.nextUserId, nextTicketId:DB.nextTicketId}));
+  } catch(e) {
+    // localStorage plein (rare) — on continue sans planter
+    console.warn('localStorage plein ou inaccessible :', e);
+  }
+}
+
+/* Réinitialiser aux données de démo (bouton admin) */
+function resetDB() {
+  if(!confirm('⚠️ Réinitialiser TOUTES les données aux valeurs de démonstration ?\n\nCette action est irréversible.')) return;
+  localStorage.clear();
+  Object.assign(DB, loadDB());
+  addLog('Réinitialisation','Base de données remise aux valeurs de démonstration');
+  saveDB();
+  toast('✅ Base de données réinitialisée','s');
+  renderPage('dashboard', document.querySelector('.ni'));
+}
+
+/* Base de données — chargée depuis localStorage au démarrage */
+const DB = loadDB();
 
 /* ================================================================
    CONSTANTES
@@ -389,6 +446,7 @@ function canReport(){return CU&&CU.accesRapport;}
 function addLog(action,details){
   DB.logs.unshift({at:now(),by:CU?CU.nm:'Système',role:CU?CU.role:'system',action,details});
   if(DB.logs.length>200)DB.logs.pop();
+  saveDB();
 }
 
 function toast(msg,type='i'){
@@ -795,6 +853,7 @@ function submitTicket(){
   DB.tickets.unshift(newTk);
   addLog('Ticket créé','#'+newTk.id+' — '+(selType==='client'?(clientNom+' / '+natureClient):catInterne)+' ('+selPrio+')');
   updateLoginStats();
+  saveDB();
   toast('✅ Ticket '+newTk.id+' créé et envoyé avec succès !','s');
   renderPage('tickets',document.querySelector('.ni:nth-child(2)'));
 }
@@ -860,7 +919,7 @@ function pageUsers(){
         <div class="sbar" style="width:200px"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg><input id="userSearch" placeholder="Rechercher…" oninput="filterUsers()"></div>
       </div>
       <table>
-        <thead><tr><th>Login</th><th>Nom complet</th><th>Email</th><th>Service</th><th>Rôle</th><th>Statut</th><th>Rapports</th><th>Actions</th></tr></thead>
+        <thead><tr><th>Login</th><th>Nom complet</th><th>Email</th><th>Service</th><th>Rôle</th><th>Mot de passe</th><th>Statut</th><th>Rapports</th><th>Actions</th></tr></thead>
         <tbody id="userTbl">${renderUserRows(usersToShow)}</tbody>
       </table>
     </div>
@@ -868,7 +927,7 @@ function pageUsers(){
 }
 
 function renderUserRows(users){
-  if(!users.length)return`<tr class="empty-row"><td colspan="8">Aucun utilisateur</td></tr>`;
+  if(!users.length)return`<tr class="empty-row"><td colspan="9">Aucun utilisateur</td></tr>`;
   const canSA=isSAdmin();
   return users.map((u,i)=>`<tr>
     <td><span class="chip" style="font-family:var(--mono)">${u.login}</span></td>
@@ -876,6 +935,12 @@ function renderUserRows(users){
     <td style="font-size:12px">${u.email}</td>
     <td style="font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis">${u.svc}</td>
     <td>${roleBadge(u.role)}</td>
+    <td>
+      <div style="display:flex;align-items:center;gap:5px">
+        <span id="pw_${u.id}" style="font-family:var(--mono);font-size:12px;letter-spacing:2px;color:var(--txt3)">••••••••</span>
+        <button class="btn btn-xs b-out" title="Afficher/Masquer" onclick="togglePwView('${u.id}','${escHtml2(u.pw)}',this)" style="padding:2px 7px;font-size:11px">👁</button>
+      </div>
+    </td>
     <td><span class="badge ${u.active?'bs-resolu':'bs-ferme'}">${u.active?'Actif':'Inactif'}</span></td>
     <td style="font-size:12px">${u.accesRapport?'✅':''} ${u.exportRapport?'📤':''}</td>
     <td><div style="display:flex;gap:4px;flex-wrap:wrap">
@@ -886,6 +951,22 @@ function renderUserRows(users){
       ${canSA&&u.id!==CU.id?`<button class="btn btn-xs b-red" onclick="deleteUser('${u.id}')">Suppr.</button>`:''}
     </div></td>
   </tr>`).join('');
+}
+
+function togglePwView(id, pw, btn){
+  const el=document.getElementById('pw_'+id);
+  if(!el)return;
+  if(el.textContent==='••••••••'){
+    el.textContent=pw;
+    el.style.color='var(--orange)';
+    el.style.letterSpacing='1px';
+    btn.textContent='🙈';
+  } else {
+    el.textContent='••••••••';
+    el.style.color='var(--txt3)';
+    el.style.letterSpacing='2px';
+    btn.textContent='👁';
+  }
 }
 
 function filterUsers(){
@@ -926,6 +1007,7 @@ function createUser(){
   DB.users.push(newU);
   addLog('Utilisateur créé','Login: '+loginFinal+' — Rôle: '+rl+' — '+nm);
   updateLoginStats();
+  saveDB();
   toast('✅ Utilisateur '+nm+' créé ! Login: '+loginFinal,'s');
   renderPage('users',null);
 }
@@ -936,6 +1018,7 @@ function toggleUser(id,state){
   if(!isSAdmin()&&u.role==='sadmin'){toast('Accès refusé','e');return;}
   u.active=state;
   addLog(state?'Utilisateur activé':'Utilisateur désactivé',u.nm+' ('+u.login+')');
+  saveDB();
   toast((state?'✅ Activé : ':'⚠️ Désactivé : ')+u.nm,'s');
   filterUsers();
 }
@@ -946,6 +1029,7 @@ function deleteUser(id){
   if(!confirm('Supprimer définitivement '+u.nm+' ?'))return;
   DB.users=DB.users.filter(x=>x.id!==id);
   addLog('Utilisateur supprimé',u.nm+' ('+u.login+')');
+  saveDB();
   toast('🗑 Utilisateur '+u.nm+' supprimé','w');
   renderPage('users',null);
 }
@@ -953,25 +1037,48 @@ function deleteUser(id){
 function editUser(id){
   const u=DB.users.find(x=>x.id===id);
   if(!u)return;
-  // Show inline edit in modal
   const roles=['sadmin','admin','user','reader'];
   const roleOpts=roles.filter(r=>isSAdmin()||r!=='sadmin').map(r=>`<option value="${r}" ${u.role===r?'selected':''}>${ROLES[r]}</option>`).join('');
   const dirOpts=DIRS.map(d=>`<option value="${d}" ${u.svc===d?'selected':''}>${d}</option>`).join('');
+  const iStyle='width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fffaf5;';
   document.getElementById('mT').textContent='Éditer — '+u.nm;
-  document.getElementById('mS').textContent='Login : '+u.login+' | Créé le '+u.createdAt;
+  document.getElementById('mS').textContent='Login : '+u.login+' | Créé le '+u.createdAt+' par '+u.createdBy;
   document.getElementById('mSLA').style.display='none';
   document.getElementById('mGrid').innerHTML=`
-    <div class="df"><label>Prénom</label><input id="eu_pr" value="${escHtml2(u.prenom)}" style="width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fafbfe;"></div>
-    <div class="df"><label>Nom</label><input id="eu_no" value="${escHtml2(u.nom)}" style="width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fafbfe;"></div>
-    <div class="df"><label>Email</label><input id="eu_em" value="${escHtml2(u.email)}" style="width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fafbfe;"></div>
-    <div class="df"><label>Service</label><select id="eu_sv" style="width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fafbfe;">${dirOpts}</select></div>
-    <div class="df"><label>Rôle</label><select id="eu_rl" style="width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fafbfe;">${roleOpts}</select></div>
-    <div class="df"><label>Statut</label><select id="eu_st" style="width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fafbfe;"><option value="true" ${u.active?'selected':''}>Actif</option><option value="false" ${!u.active?'selected':''}>Inactif</option></select></div>
-    <div class="df"><label>Accès rapports</label><select id="eu_rpt" style="width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fafbfe;"><option value="true" ${u.accesRapport?'selected':''}>Oui</option><option value="false" ${!u.accesRapport?'selected':''}>Non</option></select></div>
-    <div class="df"><label>Export CSV/PDF</label><select id="eu_exp" style="width:100%;border:1.5px solid var(--brd);border-radius:9px;padding:8px 11px;font-family:var(--font);font-size:13px;outline:none;background:#fafbfe;"><option value="true" ${u.exportRapport?'selected':''}>Oui</option><option value="false" ${!u.exportRapport?'selected':''}>Non</option></select></div>
+    <div class="df"><label>Prénom</label><input id="eu_pr" value="${escHtml2(u.prenom)}" style="${iStyle}"></div>
+    <div class="df"><label>Nom</label><input id="eu_no" value="${escHtml2(u.nom)}" style="${iStyle}"></div>
+    <div class="df"><label>Email</label><input id="eu_em" value="${escHtml2(u.email)}" style="${iStyle}"></div>
+    <div class="df"><label>Matricule</label><input id="eu_mt" value="${escHtml2(u.mat||'')}" style="${iStyle}"></div>
+    <div class="df"><label>Service</label><select id="eu_sv" style="${iStyle}">${dirOpts}</select></div>
+    <div class="df"><label>Rôle</label><select id="eu_rl" style="${iStyle}">${roleOpts}</select></div>
+    <div class="df"><label>Statut</label><select id="eu_st" style="${iStyle}"><option value="true" ${u.active?'selected':''}>Actif</option><option value="false" ${!u.active?'selected':''}>Inactif</option></select></div>
+    <div class="df"><label>Accès rapports</label><select id="eu_rpt" style="${iStyle}"><option value="true" ${u.accesRapport?'selected':''}>Oui</option><option value="false" ${!u.accesRapport?'selected':''}>Non</option></select></div>
+    <div class="df" style="grid-column:1/-1">
+      <label>🔑 Mot de passe actuel</label>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <div style="font-family:var(--mono);font-size:15px;font-weight:700;color:var(--orange);background:var(--orange-l);border:1.5px solid var(--brd);border-radius:9px;padding:8px 16px;letter-spacing:2px;flex:1" id="eu_pw_display">${escHtml2(u.pw)}</div>
+        <button type="button" class="btn btn-sm b-out" onclick="document.getElementById('eu_pw_display').style.filter=document.getElementById('eu_pw_display').style.filter?'':'blur(6px)'" title="Masquer/Afficher">👁</button>
+      </div>
+    </div>
+    <div class="df" style="grid-column:1/-1">
+      <label>🔄 Nouveau mot de passe <span style="font-size:10px;color:var(--txt3);font-weight:400">(laisser vide pour ne pas changer)</span></label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="eu_pw_new" placeholder="Nouveau mot de passe…" style="${iStyle};font-family:var(--mono);flex:1" oninput="chkEditPw(this)">
+        <button type="button" class="btn btn-sm b-out" onclick="genPw()" title="Générer automatiquement">🎲 Générer</button>
+      </div>
+      <div id="eu_pw_strength" style="margin-top:6px;display:none">
+        <div class="pw-bars"><div class="pw-bar" id="eb0"></div><div class="pw-bar" id="eb1"></div><div class="pw-bar" id="eb2"></div><div class="pw-bar" id="eb3"></div></div>
+        <div class="pw-lbl" id="eu_pw_lbl"></div>
+        <div class="pw-rules" style="margin-top:5px">
+          <span class="pr" id="epr0">≥ 8 caractères</span><span class="pr" id="epr1">Majuscule</span>
+          <span class="pr" id="epr2">Minuscule</span><span class="pr" id="epr3">Chiffre</span><span class="pr" id="epr4">Symbole</span>
+        </div>
+      </div>
+    </div>
+    <div class="df"><label>Accès export CSV/PDF</label><select id="eu_exp" style="${iStyle}"><option value="true" ${u.exportRapport?'selected':''}>Oui</option><option value="false" ${!u.exportRapport?'selected':''}>Non</option></select></div>
   `;
   document.getElementById('mTL').innerHTML='';
-  document.getElementById('mCmts').innerHTML=`<div class="info-box">Modifiez les informations ci-dessus puis cliquez sur Enregistrer.</div>`;
+  document.getElementById('mCmts').innerHTML=`<div class="info-box">ℹ️ Le mot de passe actuel est affiché en clair. Renseignez le champ "Nouveau mot de passe" uniquement si vous souhaitez le modifier.</div>`;
   document.getElementById('mCmtInput').style.display='none';
   document.getElementById('mSaveBtn').onclick=()=>saveEditUser(id);
   document.getElementById('ov').classList.add('open');
@@ -982,16 +1089,57 @@ function saveEditUser(id){
   u.prenom=document.getElementById('eu_pr')?.value.trim()||u.prenom;
   u.nom=document.getElementById('eu_no')?.value.trim()||u.nom;
   u.nm=u.nom+' '+u.prenom;
+  u.mat=document.getElementById('eu_mt')?.value.trim()||u.mat;
   u.email=document.getElementById('eu_em')?.value.trim()||u.email;
   u.svc=document.getElementById('eu_sv')?.value||u.svc;
   u.role=document.getElementById('eu_rl')?.value||u.role;
   u.active=document.getElementById('eu_st')?.value==='true';
   u.accesRapport=document.getElementById('eu_rpt')?.value==='true';
   u.exportRapport=document.getElementById('eu_exp')?.value==='true';
+  // Mot de passe — seulement si renseigné
+  const newPw=document.getElementById('eu_pw_new')?.value.trim();
+  if(newPw){
+    const R=[newPw.length>=8,/[A-Z]/.test(newPw),/[a-z]/.test(newPw),/[0-9]/.test(newPw),/[!@#$%^&*()\-_=+{};:,<.>/?]/.test(newPw)];
+    if(R.filter(Boolean).length<3){toast('⚠️ Nouveau mot de passe trop faible (min. 3 critères sur 5)','e');return;}
+    u.pw=newPw;
+    addLog('Mot de passe modifié',u.nm+' ('+u.login+') — réinitialisé par '+CU.nm);
+    toast('🔑 Mot de passe de '+u.nm+' modifié avec succès','s');
+  }
   addLog('Utilisateur modifié',u.nm+' ('+u.login+') — rôle: '+u.role);
+  saveDB();
   toast('✅ Utilisateur '+u.nm+' mis à jour','s');
   closeM();
   renderPage('users',null);
+}
+
+/* Générateur de mot de passe aléatoire fort */
+function genPw(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%&*';
+  let pw='';
+  // Garantir au moins 1 de chaque type requis
+  pw+='ABCDEFGHJKLMNPQRSTUVWXYZ'[Math.floor(Math.random()*24)];
+  pw+='abcdefghjkmnpqrstuvwxyz'[Math.floor(Math.random()*23)];
+  pw+='23456789'[Math.floor(Math.random()*8)];
+  pw+='!@#$%&*'[Math.floor(Math.random()*7)];
+  for(let i=4;i<10;i++)pw+=chars[Math.floor(Math.random()*chars.length)];
+  // Mélanger
+  pw=pw.split('').sort(()=>Math.random()-.5).join('');
+  const el=document.getElementById('eu_pw_new');
+  if(el){el.value=pw;chkEditPw(el);}
+  toast('🎲 Mot de passe généré : '+pw,'i');
+}
+
+/* Indicateur de force pour le champ nouveau mot de passe dans la modal */
+function chkEditPw(el){
+  const v=el.value;
+  const ps=document.getElementById('eu_pw_strength');if(ps)ps.style.display=v?'block':'none';
+  const R=[v.length>=8,/[A-Z]/.test(v),/[a-z]/.test(v),/[0-9]/.test(v),/[!@#$%^&*()\-_=+{};:,<.>/?]/.test(v)];
+  ['epr0','epr1','epr2','epr3','epr4'].forEach((pid,i)=>{const r=document.getElementById(pid);if(r)r.className='pr'+(R[i]?' ok':'');});
+  const sc=R.filter(Boolean).length;
+  const labs=['Très faible','Faible','Moyen','Fort','Très fort'];
+  const cls=['s0','s1','s2','s3','s4'];
+  const lbl=document.getElementById('eu_pw_lbl');if(lbl)lbl.textContent=sc>0?labs[sc-1]:'';
+  for(let j=0;j<4;j++){const b=document.getElementById('eb'+j);if(b)b.className='pw-bar'+(j<sc?' a '+cls[sc-1]:'');}
 }
 
 /* ================================================================
@@ -1256,6 +1404,7 @@ function saveM(){
   }
   if(changed){toast('✅ Ticket #'+t.id+' mis à jour','s');}
   else{toast('Aucune modification','i');}
+  saveDB();
   closeM();
   // refresh current page
   const activePage=document.querySelector('.pg.act')||document.querySelector('.ni.act');
@@ -1303,6 +1452,31 @@ function showNotifPanel(){
   const nonOuverts=DB.tickets.filter(t=>t.statut==='recu'&&t.wait>60);
   if(!nonOuverts.length){toast('Aucune alerte active','i');return;}
   toast(`🚨 ${nonOuverts.length} ticket(s) non ouvert(s) depuis +1h : ${nonOuverts.map(t=>'#'+t.id).join(', ')}`,'w');
+}
+
+/* ================================================================
+   PAGE: LOGS (avec bouton réinitialisation)
+================================================================ */
+function pageLogs(){
+  return `<div class="pghd"><h1>Journal d'activité</h1><p>${DB.logs.length} action(s) enregistrée(s) — sauvegardées dans ce navigateur</p></div>
+  <div class="card">
+    <div class="chd"><h3>Historique des actions</h3>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <button class="btn btn-sm b-red" onclick="DB.logs=[];saveDB();renderPage('logs',null);toast('Journal effacé','w')">🗑 Effacer le journal</button>
+        ${isSAdmin()?`<button class="btn btn-sm b-warn" style="background:var(--red);color:#fff" onclick="resetDB()">⚠️ Réinitialiser toute la base</button>`:''}
+      </div>
+    </div>
+    <div class="cbd">
+      ${DB.logs.length?DB.logs.map(l=>`
+        <div class="log-item">
+          <div class="log-icon">${{'Connexion':'🔑','Déconnexion':'🚪','Ticket créé':'🎫','Ticket modifié':'✏️','Utilisateur créé':'👤','Utilisateur modifié':'🔧','Utilisateur activé':'✅','Utilisateur désactivé':'⛔','Utilisateur supprimé':'🗑','Commentaire ajouté':'💬','Statut modifié':'🔄','Priorité modifiée':'⚡','Service modifié':'📋','Réinitialisation':'♻️'}[l.action]||'📌'}</div>
+          <div class="log-body">
+            <div><strong>${l.action}</strong> — ${l.details}</div>
+            <div class="log-time">par <strong>${l.by}</strong> (${l.role}) • ${fmt(l.at)}</div>
+          </div>
+        </div>`).join(''):`<div style="text-align:center;color:var(--txt3);padding:24px">Aucune action enregistrée</div>`}
+    </div>
+  </div>`;
 }
 
 /* ================================================================
